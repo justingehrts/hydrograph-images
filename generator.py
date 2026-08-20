@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from datetime import timedelta
 import numpy as np
 
 # --- 1. Define Gauge and Endpoints ---
@@ -27,17 +28,32 @@ stages = {
 # --- 3. Fetch Timeseries Data ---
 data_resp = requests.get(data_url).json()
 
-def parse_series(series_data):
+def parse_series(series_data, is_obs=False):
     times, heights = [], []
+    current_time = datetime.now(local_tz)
+    
     for pt in series_data:
-        # Parse UTC time and convert to local time
+        val = pt["primary"]
+        
+        # 1. Filter out NWPS missing data flags (e.g., -9999)
+        if val is None or val < -100:
+            continue
+            
         dt_utc = datetime.fromisoformat(pt["validTime"].replace("Z", "+00:00"))
-        times.append(dt_utc.astimezone(local_tz))
-        heights.append(pt["primary"])
+        local_dt = dt_utc.astimezone(local_tz)
+        
+        # 2. Trim observed data to only show the past 5 days
+        if is_obs and (current_time - local_dt) > timedelta(days=5):
+            continue
+            
+        times.append(local_dt)
+        heights.append(val)
+        
     return times, heights
 
-obs_times, obs_stages = parse_series(data_resp.get("observed", {}).get("data", []))
-fcst_times, fcst_stages = parse_series(data_resp.get("forecast", {}).get("data", []))
+# Update the function calls to pass the new is_obs flag
+obs_times, obs_stages = parse_series(data_resp.get("observed", {}).get("data", []), is_obs=True)
+fcst_times, fcst_stages = parse_series(data_resp.get("forecast", {}).get("data", []), is_obs=False)
 
 all_stages = obs_stages + fcst_stages
 if not all_stages:
