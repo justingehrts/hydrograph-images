@@ -42,8 +42,8 @@ def parse_series(series_data, is_obs=False):
         dt_utc = datetime.fromisoformat(pt["validTime"].replace("Z", "+00:00"))
         local_dt = dt_utc.astimezone(local_tz)
         
-        # 2. Trim observed data to only show the past 5 days
-        if is_obs and (current_time - local_dt) > timedelta(days=5):
+        # 2. Trim observed data to only show the past 3 days
+        if is_obs and (current_time - local_dt) > timedelta(days=3):
             continue
             
         times.append(local_dt)
@@ -66,9 +66,9 @@ ax.set_facecolor('#ffffff')
 
 # Plot lines
 if obs_times:
-    ax.plot(obs_times, obs_stages, color='#1e90ff', marker='o', markersize=4, linewidth=2, label='Observed')
+    ax.plot(obs_times, obs_stages, color='#1e90ff', linewidth=3, label='Observed')
 if fcst_times:
-    ax.plot(fcst_times, fcst_stages, color='#800080', marker='s', markersize=3, linewidth=2, label='Forecast')
+    ax.plot(fcst_times, fcst_stages, color='#800080', linewidth=3, label='Forecast')
 
 # Dynamic Y-Axis: Pad 2 feet above/below the max/min data OR flood stages
 valid_thresholds = [s for s in stages.values() if s is not None]
