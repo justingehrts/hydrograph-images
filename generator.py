@@ -42,8 +42,8 @@ def parse_series(series_data, is_obs=False):
         dt_utc = datetime.fromisoformat(pt["validTime"].replace("Z", "+00:00"))
         local_dt = dt_utc.astimezone(local_tz)
         
-        # 2. Trim observed data to only show the past 3 days
-        if is_obs and (current_time - local_dt) > timedelta(days=3):
+        # 2. Trim observed data to only show the past 2 days
+        if is_obs and (current_time - local_dt) > timedelta(days=2):
             continue
             
         times.append(local_dt)
@@ -66,9 +66,9 @@ ax.set_facecolor('#ffffff')
 
 # Plot lines
 if obs_times:
-    ax.plot(obs_times, obs_stages, color='#1e90ff', linewidth=3, label='Observed')
+    ax.plot(obs_times, obs_stages, color='#1e90ff', linewidth=5, label='Observed')
 if fcst_times:
-    ax.plot(fcst_times, fcst_stages, color='#800080', linewidth=3, label='Forecast')
+    ax.plot(fcst_times, fcst_stages, color='#800080', linewidth=5, label='Forecast')
 
 # Dynamic Y-Axis: Pad 2 feet above/below the max/min data OR flood stages
 valid_thresholds = [s for s in stages.values() if s is not None]
@@ -87,14 +87,14 @@ for i, (name, stage_val) in enumerate(sorted_stages):
     ax.text(obs_times[0] if obs_times else fcst_times[0], stage_val + 0.1, f' {name}: {stage_val}\'', color='black', fontsize=9, weight='bold')
 
 # --- 5. Aesthetics ---
-ax.set_title(f"{gage_name.upper()}", fontsize=14, weight='bold', color='#000080', pad=15)
+#ax.set_title(f"{gage_name.upper()}", fontsize=14, weight='bold', color='#000080', pad=15)
 ax.set_ylabel("Stage (ft)", fontsize=12, weight='bold')
-ax.set_xlabel("Site Time (EDT/EST)", fontsize=12, weight='bold')
+#ax.set_xlabel("Site Time (EDT/EST)", fontsize=12, weight='bold')
 
 # X-axis date formatting
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%a\n%b %d', tz=local_tz))
 ax.grid(True, linestyle=':', color='gray')
-ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.2), ncol=2, frameon=False)
+#ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.2), ncol=2, frameon=False)
 
 plt.tight_layout()
 plt.savefig("image_d0b471_dynamic.png", facecolor=fig.get_facecolor())
