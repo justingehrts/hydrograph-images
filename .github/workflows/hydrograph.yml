@@ -28,7 +28,7 @@ jobs:
 
       - name: Upload to AWS S3
         run: |
-          aws s3 cp image_d0b471_dynamic.png s3://YOUR-BUCKET-NAME/image_d0b471_dynamic.png --cache-control "max-age=60"
+          aws s3 cp image_d0b471_dynamic.png s3://max-hydrographs/image_d0b471_dynamic.png --cache-control "max-age=60"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
