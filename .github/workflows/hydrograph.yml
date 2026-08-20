@@ -1,0 +1,35 @@
+name: Generate Max Hydrograph
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Runs every 15 minutes
+  workflow_dispatch:        # Gives you a "Run workflow" button to trigger it manually
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run generator script
+        run: python generator.py
+
+      - name: Upload to AWS S3
+        run: |
+          aws s3 cp image_d0b471_dynamic.png s3://YOUR-BUCKET-NAME/image_d0b471_dynamic.png --cache-control "max-age=60"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-2  # Standard Ohio AWS region, adjust if needed
